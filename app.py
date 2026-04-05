@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3
+import psycopg2
 import os
 
 app = Flask(__name__)
@@ -8,36 +8,39 @@ app.secret_key = "secret123"
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+
 def get_db():
-    return sqlite3.connect("database.db")
+    return psycopg2.connect(os.environ.get("DATABASE_URL"))
+
 
 def init_db():
     conn = get_db()
+    cur = conn.cursor()
 
-    conn.execute('''
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT,
         email TEXT,
         password TEXT,
         role TEXT
     )
-    ''')
+    """)
 
-    conn.execute('''
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS jobs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         title TEXT,
         description TEXT,
         salary TEXT,
         location TEXT
     )
-    ''')
+    """)
 
-    conn.execute('''
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS applications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user TEXT,
+        id SERIAL PRIMARY KEY,
+        user_name TEXT,
         job TEXT,
         company TEXT,
         salary TEXT,
@@ -45,38 +48,43 @@ def init_db():
         resume TEXT,
         status TEXT DEFAULT 'Applied'
     )
-    ''')
+    """)
 
-    conn.execute('''
+    cur.execute("""
     CREATE TABLE IF NOT EXISTS interviews (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         application_id INTEGER,
         date TEXT,
         time TEXT,
         result TEXT
     )
-    ''')
+    """)
 
     conn.commit()
+    cur.close()
     conn.close()
 
+
 init_db()
+
 
 @app.route('/')
 def home():
     return redirect('/login')
 
-@app.route('/login', methods=['GET','POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
 
         conn = get_db()
-        user = conn.execute(
-            "SELECT * FROM users WHERE email=? AND password=?",
-            (email, password)
-        ).fetchone()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE email=%s AND password=%s", (email, password))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
 
         if user:
             session['user'] = user[1]
@@ -91,7 +99,8 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/register', methods=['GET','POST'])
+
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         name = request.form['name']
@@ -100,15 +109,19 @@ def register():
         role = request.form['role']
 
         conn = get_db()
-        conn.execute(
-            "INSERT INTO users (name,email,password,role) VALUES (?,?,?,?)",
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
             (name, email, password, role)
         )
         conn.commit()
+        cur.close()
+        conn.close()
 
         return redirect('/login')
 
     return render_template('register.html')
+
 
 @app.route('/candidate_dashboard')
 def candidate_dashboard():
@@ -116,17 +129,27 @@ def candidate_dashboard():
         return redirect('/login')
     return render_template('candidate_dashboard.html')
 
+
 @app.route('/hr_dashboard')
 def hr_dashboard():
     if 'user' not in session:
         return redirect('/login')
 
     conn = get_db()
-    jobs = conn.execute("SELECT * FROM jobs").fetchall()
-    apps = conn.execute("SELECT * FROM applications").fetchall()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM jobs")
+    jobs = cur.fetchall()
+
+    cur.execute("SELECT * FROM applications")
+    apps = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
     return render_template('hr_dashboard.html', jobs=jobs, apps=apps)
 
-@app.route('/post_job', methods=['GET','POST'])
+
+@app.route('/post_job', methods=['GET', 'POST'])
 def post_job():
     if 'user' not in session:
         return redirect('/login')
@@ -138,15 +161,19 @@ def post_job():
         location = request.form['location']
 
         conn = get_db()
-        conn.execute(
-            "INSERT INTO jobs (title,description,salary,location) VALUES (?,?,?,?)",
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO jobs (title,description,salary,location) VALUES (%s,%s,%s,%s)",
             (title, desc, salary, location)
         )
         conn.commit()
+        cur.close()
+        conn.close()
 
         return redirect('/hr_dashboard')
 
     return render_template('post_job.html')
+
 
 @app.route('/jobs')
 def jobs():
@@ -154,31 +181,50 @@ def jobs():
         return redirect('/login')
 
     conn = get_db()
-    jobs = conn.execute("SELECT * FROM jobs").fetchall()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM jobs")
+    jobs = cur.fetchall()
+    cur.close()
+    conn.close()
+
     return render_template('jobs.html', jobs=jobs)
 
-@app.route('/apply/<int:id>', methods=['GET','POST'])
+
+@app.route('/apply/<int:id>', methods=['GET', 'POST'])
 def apply(id):
     if 'user' not in session:
         return redirect('/login')
 
     conn = get_db()
-    job = conn.execute("SELECT * FROM jobs WHERE id=?", (id,)).fetchone()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM jobs WHERE id=%s", (id,))
+    job = cur.fetchone()
 
     if request.method == 'POST':
-        file = request.files['resume']
-        filename = file.filename
-        file.save(os.path.join(UPLOAD_FOLDER, filename))
+        file = request.files.get('resume')
 
-        conn.execute(
-            "INSERT INTO applications (user,job,company,salary,location,resume,status) VALUES (?,?,?,?,?,?,?)",
+        if not file or file.filename == "":
+            return "<h3>No file selected ❌</h3>"
+
+        filename = file.filename
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+
+        cur.execute(
+            "INSERT INTO applications (user_name,job,company,salary,location,resume,status) VALUES (%s,%s,%s,%s,%s,%s,%s)",
             (session['user'], job[1], "Company", job[3], job[4], filename, "Applied")
         )
+
         conn.commit()
+        cur.close()
+        conn.close()
 
         return redirect('/applications')
 
+    cur.close()
+    conn.close()
     return render_template('apply.html', job=job)
+
 
 @app.route('/applications')
 def applications():
@@ -186,12 +232,14 @@ def applications():
         return redirect('/login')
 
     conn = get_db()
-    apps = conn.execute(
-        "SELECT * FROM applications WHERE user=?",
-        (session['user'],)
-    ).fetchall()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM applications WHERE user_name=%s", (session['user'],))
+    apps = cur.fetchall()
+    cur.close()
+    conn.close()
 
     return render_template('applications.html', apps=apps)
+
 
 @app.route('/shortlist/<int:id>')
 def shortlist(id):
@@ -199,11 +247,16 @@ def shortlist(id):
         return redirect('/login')
 
     conn = get_db()
-    conn.execute("UPDATE applications SET status='Shortlisted' WHERE id=?", (id,))
+    cur = conn.cursor()
+    cur.execute("UPDATE applications SET status='Shortlisted' WHERE id=%s", (id,))
     conn.commit()
+    cur.close()
+    conn.close()
+
     return redirect('/hr_dashboard')
 
-@app.route('/interview/<int:id>', methods=['GET','POST'])
+
+@app.route('/interview/<int:id>', methods=['GET', 'POST'])
 def interview(id):
     if 'user' not in session:
         return redirect('/login')
@@ -213,19 +266,32 @@ def interview(id):
         time = request.form['time']
 
         conn = get_db()
-        conn.execute(
-            "INSERT INTO interviews (application_id,date,time,result) VALUES (?,?,?,?)",
-            (id, date, time, "Pending")
+        cur = conn.cursor()
+
+        cur.execute(
+            "INSERT INTO interviews (application_id,date,time,result) VALUES (%s,%s,%s,%s)",
+            (id, date, time, "Scheduled")
         )
+
+        cur.execute(
+            "UPDATE applications SET status='Interview Scheduled' WHERE id=%s",
+            (id,)
+        )
+
         conn.commit()
+        cur.close()
+        conn.close()
+
         return redirect('/hr_dashboard')
 
     return render_template('interview.html', id=id)
+
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
+
 
 if __name__ == "__main__":
     app.run()
