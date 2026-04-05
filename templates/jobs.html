@@ -11,30 +11,24 @@
     <h2>HireHub</h2>
     <div>
         <a href="/candidate_dashboard">Dashboard</a>
-        <a href="/applications">My Applications</a>
+        <a href="/applications">Applications</a>
         <a href="/logout">Logout</a>
     </div>
 </div>
 
-<div class="jobs">
-    <h2>Available Jobs 💼</h2>
+{% for job in jobs %}
+<div class="job-card">
+    <h3>{{ job[1] }}</h3>
+    <p>{{ job[2] }}</p>
+    <p>{{ job[3] }}</p>
+    <p>{{ job[4] }}</p>
+    <p>{{ job[5] }}</p>
 
-    {% for job in jobs %}
-        <div class="job-card">
-            <h3>{{ job[1] }}</h3>
-            <p>{{ job[2] }}</p>
-
-            <p><b>🏢 Company:</b> {{ job[3] }}</p>
-            <p><b>💰 Salary:</b> {{ job[4] }}</p>
-            <p><b>📍 Location:</b> {{ job[5] }}</p>
-
-            <br>
-            <a href="/apply/{{ job[0] }}">
-                <button>Apply Now</button>
-            </a>
-        </div>
-    {% endfor %}
+    <a href="/apply/{{ job[0] }}">
+        <button>Apply</button>
+    </a>
 </div>
+{% endfor %}
 
 </body>
 </html>

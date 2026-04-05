@@ -1,17 +1,40 @@
-<link rel="stylesheet" href="/static/style.css">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HR Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-<h2>HR Dashboard</h2>
+<body>
 
-<a href="/post_job">Post Job</a>
-<a href="/logout">Logout</a>
+<div class="navbar">
+    <h2>HireHub</h2>
+    <div>
+        <a href="/post_job">Post Job</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
 
-<h3>Applications</h3>
+<h2>Jobs</h2>
 
-{% for a in apps %}
-<p>
-<b>{{a[1]}}</b> applied for <b>{{a[2]}}</b> | Status: {{a[6]}}
-<br>
-<a href="/shortlist/{{a[0]}}">Shortlist</a>
-<a href="/interview/{{a[0]}}">Schedule Interview</a>
-</p>
+{% for job in jobs %}
+<div class="job-card">
+    <h3>{{ job[1] }}</h3>
+    <p>{{ job[2] }}</p>
+</div>
 {% endfor %}
+
+<h2>Applications</h2>
+
+{% for app in apps %}
+<div class="job-card">
+    <p>{{ app[1] }} applied for {{ app[2] }}</p>
+    <p>Status: {{ app[7] }}</p>
+
+    <a href="/shortlist/{{ app[0] }}"><button>Shortlist</button></a>
+    <a href="/interview/{{ app[0] }}"><button>Interview</button></a>
+</div>
+{% endfor %}
+
+</body>
+</html>

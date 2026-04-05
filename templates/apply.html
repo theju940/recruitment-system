@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Apply</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Apply for {{ job[1] }}</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="resume" required>
+        <button>Submit</button>
+    </form>
+</div>
+
+</body>
+</html>

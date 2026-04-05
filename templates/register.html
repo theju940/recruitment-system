@@ -1,15 +1,35 @@
-<link rel="stylesheet" href="/static/style.css">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-<h2>Register</h2>
-<form method="POST">
-<input name="name" placeholder="Name">
-<input name="email" placeholder="Email">
-<input name="password" type="password" placeholder="Password">
+<body>
 
-<select name="role">
-<option value="candidate">Candidate</option>
-<option value="hr">HR</option>
-</select>
+<div class="navbar">
+    <h2>HireHub</h2>
+</div>
 
-<button>Register</button>
-</form>
+<div class="card">
+    <h2>Register</h2>
+
+    <form method="POST">
+        <input name="name" placeholder="Name" required>
+        <input name="email" placeholder="Email" required>
+        <input name="password" placeholder="Password" required>
+
+        <select name="role">
+            <option value="candidate">Candidate</option>
+            <option value="hr">HR</option>
+        </select>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <br>
+    <a href="/login">Back to Login</a>
+</div>
+
+</body>
+</html>

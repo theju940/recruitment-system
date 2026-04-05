@@ -1,10 +1,16 @@
-body {
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
     font-family: 'Segoe UI', sans-serif;
     background: #0f172a;
     color: white;
 }
 
+/* NAVBAR */
 .navbar {
     background: #020617;
     padding: 15px 40px;
@@ -14,7 +20,6 @@ body {
 }
 
 .navbar h2 {
-    margin: 0;
     color: #38bdf8;
 }
 
@@ -22,28 +27,26 @@ body {
     color: white;
     margin-left: 20px;
     text-decoration: none;
+    font-size: 14px;
 }
 
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90vh;
+.navbar a:hover {
+    color: #38bdf8;
 }
 
+/* CARD */
 .card {
     background: #1e293b;
     padding: 30px;
     border-radius: 12px;
     width: 350px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-}
-
-h2 {
+    margin: 60px auto;
     text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-input {
+/* INPUT */
+input, select {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
@@ -51,6 +54,7 @@ input {
     border: none;
 }
 
+/* BUTTON */
 button {
     width: 100%;
     padding: 10px;
@@ -65,22 +69,30 @@ button:hover {
     opacity: 0.9;
 }
 
-.link {
-    text-align: center;
-    margin-top: 10px;
-}
-
-.link a {
-    color: #38bdf8;
-}
-
-.jobs {
-    padding: 40px;
-}
-
+/* JOB LIST */
 .job-card {
     background: #1e293b;
+    margin: 20px;
     padding: 20px;
-    margin: 15px 0;
     border-radius: 10px;
+    transition: 0.3s;
+}
+
+.job-card:hover {
+    transform: scale(1.02);
+}
+
+/* TEXT */
+h2 {
+    text-align: center;
+    margin: 20px 0;
+}
+
+p {
+    margin: 5px 0;
+}
+
+/* LINKS */
+a {
+    text-decoration: none;
 }

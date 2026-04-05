@@ -9,26 +9,17 @@
 
 <div class="navbar">
     <h2>HireHub</h2>
-    <div>
-        <a href="/candidate_dashboard">Dashboard</a>
-        <a href="/jobs">Jobs</a>
-        <a href="/logout">Logout</a>
-    </div>
 </div>
 
-<div class="jobs">
-    <h2>Your Applications 📄</h2>
-
-    {% for app in apps %}
-        <div class="job-card">
-            <h3>{{ app[2] }}</h3>
-            <p><b>Company:</b> {{ app[3] }}</p>
-            <p><b>Salary:</b> {{ app[4] }}</p>
-            <p><b>Location:</b> {{ app[5] }}</p>
-            <p><b>Status:</b> {{ app[7] }}</p>
-        </div>
-    {% endfor %}
+{% for app in apps %}
+<div class="job-card">
+    <h3>{{ app[2] }}</h3>
+    <p>{{ app[3] }}</p>
+    <p>{{ app[4] }}</p>
+    <p>{{ app[5] }}</p>
+    <p>Status: {{ app[7] }}</p>
 </div>
+{% endfor %}
 
 </body>
 </html>
