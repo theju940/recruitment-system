@@ -7,17 +7,21 @@
 
 <body>
 
-<div class="card">
+<div class="form-container">
     <h2>Post Job</h2>
 
     <form method="POST">
-        <input name="title" placeholder="Title" required>
-        <input name="description" placeholder="Description" required>
-        <input name="company" placeholder="Company" required>
-        <input name="salary" placeholder="Salary" required>
-        <input name="location" placeholder="Location" required>
 
-        <button>Post Job</button>
+        <input type="text" name="title" placeholder="Job Title" required>
+
+        <input type="text" name="description" placeholder="Description" required>
+
+        <input type="text" name="salary" placeholder="Salary" required>
+
+        <input type="text" name="location" placeholder="Location" required>
+
+        <button type="submit">Post Job</button>
+
     </form>
 </div>
 
