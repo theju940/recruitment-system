@@ -1,13 +1,40 @@
-<link rel="stylesheet" href="/static/style.css">
 
-<h2>Available Jobs</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jobs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-{% for j in jobs %}
-<p>
-<b>{{j[1]}}</b> | {{j[4]}} | ₹{{j[3]}}
-<br>
-<a href="/apply/{{j[0]}}">Apply</a>
-</p>
-{% endfor %}
+<body>
 
-<a href="/candidate_dashboard">Back</a>
+<div class="navbar">
+    <h2>HireHub</h2>
+    <div>
+        <a href="/candidate_dashboard">Dashboard</a>
+        <a href="/applications">My Applications</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="jobs">
+    <h2>Available Jobs 💼</h2>
+
+    {% for job in jobs %}
+        <div class="job-card">
+            <h3>{{ job[1] }}</h3>
+            <p>{{ job[2] }}</p>
+
+            <p><b>💰 Salary:</b> {{ job[3] }}</p>
+            <p><b>📍 Location:</b> {{ job[4] }}</p>
+
+            <br>
+            <a href="/apply/{{ job[0] }}">
+                <button>Apply Now</button>
+            </a>
+        </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

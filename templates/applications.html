@@ -1,11 +1,34 @@
-<link rel="stylesheet" href="/static/style.css">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Applications</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-<h2>My Applications</h2>
+<body>
 
-{% for a in apps %}
-<p>
-{{a[2]}} - Status: {{a[6]}}
-</p>
-{% endfor %}
+<div class="navbar">
+    <h2>HireHub</h2>
+    <div>
+        <a href="/candidate_dashboard">Dashboard</a>
+        <a href="/jobs">Jobs</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
 
-<a href="/candidate_dashboard">Back</a>
+<div class="jobs">
+    <h2>Your Applications 📄</h2>
+
+    {% for app in apps %}
+        <div class="job-card">
+            <h3>{{ app[2] }}</h3>
+            <p><b>Company:</b> {{ app[3] }}</p>
+            <p><b>Salary:</b> {{ app[4] }}</p>
+            <p><b>Location:</b> {{ app[5] }}</p>
+            <p><b>Status:</b> {{ app[7] }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>
