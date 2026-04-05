@@ -1,0 +1,13 @@
+<link rel="stylesheet" href="/static/style.css">
+
+<h2>Available Jobs</h2>
+
+{% for j in jobs %}
+<p>
+<b>{{j[1]}}</b> | {{j[4]}} | ₹{{j[3]}}
+<br>
+<a href="/apply/{{j[0]}}">Apply</a>
+</p>
+{% endfor %}
+
+<a href="/candidate_dashboard">Back</a>

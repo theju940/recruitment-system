@@ -1,0 +1,11 @@
+<link rel="stylesheet" href="/static/style.css">
+
+<h2>My Applications</h2>
+
+{% for a in apps %}
+<p>
+{{a[2]}} - Status: {{a[6]}}
+</p>
+{% endfor %}
+
+<a href="/candidate_dashboard">Back</a>

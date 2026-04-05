@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Application Submitted</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background-color: #f4f6f8;
+        }
+
+        .box {
+            margin-top: 100px;
+            padding: 30px;
+            background: white;
+            display: inline-block;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: blue;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>🎉 Application Submitted!</h2>
+        <p>You applied for <b>{{ job }}</b></p>
+
+        <a href="/jobs">Apply More Jobs</a><br><br>
+        <a href="/dashboard">Go to Dashboard</a>
+    </div>
+
+</body>
+</html>

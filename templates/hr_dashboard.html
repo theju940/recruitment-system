@@ -1,0 +1,17 @@
+<link rel="stylesheet" href="/static/style.css">
+
+<h2>HR Dashboard</h2>
+
+<a href="/post_job">Post Job</a>
+<a href="/logout">Logout</a>
+
+<h3>Applications</h3>
+
+{% for a in apps %}
+<p>
+<b>{{a[1]}}</b> applied for <b>{{a[2]}}</b> | Status: {{a[6]}}
+<br>
+<a href="/shortlist/{{a[0]}}">Shortlist</a>
+<a href="/interview/{{a[0]}}">Schedule Interview</a>
+</p>
+{% endfor %}
