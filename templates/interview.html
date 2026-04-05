@@ -1,14 +1,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Interview</title>
+    <title>Schedule Interview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<form method="POST">
-    <button>Confirm Interview</button>
-</form>
+<div class="navbar">
+    <h2>HireHub</h2>
+    <div>
+        <a href="/hr_dashboard">Dashboard</a>
+        <a href="/logout">Logout</a>
+    </div>
+</div>
+
+<div class="form-container">
+    <h2>Schedule Interview</h2>
+
+    <form method="POST">
+        <input type="date" name="date" required>
+        <input type="time" name="time" required>
+        <button type="submit">Confirm Interview</button>
+    </form>
+</div>
 
 </body>
 </html>
