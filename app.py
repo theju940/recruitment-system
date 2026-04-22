@@ -308,5 +308,33 @@ def logout():
     session.clear()
     return redirect('/login')
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
+
+
+# 👉 ADD HERE 👇
+@app.route('/delete_duplicates')
+def delete_duplicates():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM applications a
+        USING applications b
+        WHERE a.id > b.id
+        AND a.user_name = b.user_name
+        AND a.job = b.job
+        AND a.salary = b.salary
+        AND a.location = b.location
+    """)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return "Duplicates deleted ✅"
+    
 if __name__ == "__main__":
     app.run()
