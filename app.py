@@ -8,10 +8,8 @@ app.secret_key = "secret123"
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-
 def get_db():
     return psycopg2.connect(os.environ.get("DATABASE_URL"))
-
 
 def init_db():
     conn = get_db()
@@ -64,14 +62,11 @@ def init_db():
     cur.close()
     conn.close()
 
-
 init_db()
-
 
 @app.route('/')
 def home():
     return redirect('/login')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -99,7 +94,6 @@ def login():
 
     return render_template('login.html')
 
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -110,10 +104,18 @@ def register():
 
         conn = get_db()
         cur = conn.cursor()
+
+        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return "<h3>Email already exists ❌</h3>"
+
         cur.execute(
             "INSERT INTO users (name,email,password,role) VALUES (%s,%s,%s,%s)",
             (name, email, password, role)
         )
+
         conn.commit()
         cur.close()
         conn.close()
@@ -122,13 +124,11 @@ def register():
 
     return render_template('register.html')
 
-
 @app.route('/candidate_dashboard')
 def candidate_dashboard():
     if 'user' not in session:
         return redirect('/login')
     return render_template('candidate_dashboard.html')
-
 
 @app.route('/hr_dashboard')
 def hr_dashboard():
@@ -148,7 +148,6 @@ def hr_dashboard():
 
     return render_template('hr_dashboard.html', jobs=jobs, apps=apps)
 
-
 @app.route('/post_job', methods=['GET', 'POST'])
 def post_job():
     if 'user' not in session:
@@ -162,10 +161,21 @@ def post_job():
 
         conn = get_db()
         cur = conn.cursor()
+
+        cur.execute(
+            "SELECT * FROM jobs WHERE title=%s AND location=%s",
+            (title, location)
+        )
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return "<h3>Job already posted ❌</h3>"
+
         cur.execute(
             "INSERT INTO jobs (title,description,salary,location) VALUES (%s,%s,%s,%s)",
             (title, desc, salary, location)
         )
+
         conn.commit()
         cur.close()
         conn.close()
@@ -173,7 +183,6 @@ def post_job():
         return redirect('/hr_dashboard')
 
     return render_template('post_job.html')
-
 
 @app.route('/jobs')
 def jobs():
@@ -189,7 +198,6 @@ def jobs():
 
     return render_template('jobs.html', jobs=jobs)
 
-
 @app.route('/apply/<int:id>', methods=['GET', 'POST'])
 def apply(id):
     if 'user' not in session:
@@ -201,6 +209,15 @@ def apply(id):
     job = cur.fetchone()
 
     if request.method == 'POST':
+        cur.execute(
+            "SELECT * FROM applications WHERE user_name=%s AND job=%s",
+            (session['user'], job[1])
+        )
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return "<h3>You already applied for this job ❌</h3>"
+
         file = request.files.get('resume')
 
         if not file or file.filename == "":
@@ -225,7 +242,6 @@ def apply(id):
     conn.close()
     return render_template('apply.html', job=job)
 
-
 @app.route('/applications')
 def applications():
     if 'user' not in session:
@@ -240,7 +256,6 @@ def applications():
 
     return render_template('applications.html', apps=apps)
 
-
 @app.route('/shortlist/<int:id>')
 def shortlist(id):
     if 'user' not in session:
@@ -254,7 +269,6 @@ def shortlist(id):
     conn.close()
 
     return redirect('/hr_dashboard')
-
 
 @app.route('/interview/<int:id>', methods=['GET', 'POST'])
 def interview(id):
@@ -286,12 +300,10 @@ def interview(id):
 
     return render_template('interview.html', id=id)
 
-
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
-
 
 if __name__ == "__main__":
     app.run()
