@@ -209,8 +209,6 @@ def apply(id):
     job = cur.fetchone()
 
     if request.method == 'POST':
-
-        # STRICT DUPLICATE CHECK (ALL FIELDS)
         cur.execute(
             "SELECT * FROM applications WHERE user_name=%s AND job=%s AND location=%s AND salary=%s",
             (session['user'], job[1], job[4], job[3])
@@ -308,33 +306,35 @@ def logout():
     session.clear()
     return redirect('/login')
 
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/login')
 
-
-# 👉 ADD HERE 👇
+# SAFE duplicate removal
 @app.route('/delete_duplicates')
 def delete_duplicates():
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("""
-        DELETE FROM applications a
-        USING applications b
-        WHERE a.id > b.id
-        AND a.user_name = b.user_name
-        AND a.job = b.job
-        AND a.salary = b.salary
-        AND a.location = b.location
-    """)
+    cur.execute("SELECT id, user_name, job, location, salary FROM applications")
+    rows = cur.fetchall()
+
+    seen = set()
+    duplicates = []
+
+    for row in rows:
+        key = (row[1], row[2], row[3], row[4])
+        if key in seen:
+            duplicates.append(row[0])
+        else:
+            seen.add(key)
+
+    for id in duplicates:
+        cur.execute("DELETE FROM applications WHERE id=%s", (id,))
 
     conn.commit()
     cur.close()
     conn.close()
 
     return "Duplicates deleted ✅"
-    
+
+
 if __name__ == "__main__":
     app.run()
