@@ -209,10 +209,13 @@ def apply(id):
     job = cur.fetchone()
 
     if request.method == 'POST':
+
+        # STRICT DUPLICATE CHECK (ALL FIELDS)
         cur.execute(
-            "SELECT * FROM applications WHERE user_name=%s AND job=%s",
-            (session['user'], job[1])
+            "SELECT * FROM applications WHERE user_name=%s AND job=%s AND location=%s AND salary=%s",
+            (session['user'], job[1], job[4], job[3])
         )
+
         if cur.fetchone():
             cur.close()
             conn.close()
